@@ -1,0 +1,12 @@
+{
+  "name": "kids-vocab-tauri",
+  "private": true,
+  "scripts": {
+    "dev": "npx http-server src -p 1420 -c-1 --cors",
+    "build": "mkdir -p dist && cp src/index.html dist/ && cp -r src/css dist/ && cp -r src/js dist/ && echo 'built'",
+    "tauri": "npx tauri"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}
