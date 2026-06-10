@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280, height=800, initial-scale=1.0">
+<title>🐣 快乐背单词 — 拖拽拼写模式</title>
+<style>
+/* ====== Design System: Garden Fairy Tale — Drag Mode ====== */
+:root {
+  --mint: #66bb6a;
+  --mint-light: #a5d6a7;
+  --mint-pale: #c8e6c9;
+  --blush: #f48fb1;
+  --sunshine: #fff176;
+  --sunshine-light: #fff9c4;
+  --cream: #fffde7;
+  --brown-text: #5d4037;
+  --white-card: #fffff9;
+  --shadow-card: 0 8px 40px rgba(102, 187, 106, 0.15), 0 2px 8px rgba(0,0,0,0.06);
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
+  --radius-xl: 56px;
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  width: 1280px; height: 800px; overflow: hidden;
+  font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: linear-gradient(180deg, #e8f8e0 0%, #d4edc9 28%, #c8e6c9 55%, #a5d6a7 100%);
+  display: flex; align-items: center; justify-content: center;
+  user-select: none; position: relative;
+}
+
+/* ====== 花园背景 ====== */
+.garden-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+.cloud {
+  position: absolute; background: white; border-radius: 50%; opacity: 0.65;
+  animation: cloud-drift 28s linear infinite;
+}
+.cloud::before, .cloud::after { content: ''; position: absolute; background: white; border-radius: 50%; }
+.cloud-1 { width: 150px; height: 54px; top: 35px; left: 6%; border-radius: 54px; }
+.cloud-1::before { width: 65px; height: 65px; top: -32px; left: 28px; }
+.cloud-1::after  { width: 85px; height: 85px; top: -42px; left: 60px; }
+.cloud-2 { width: 100px; height: 34px; top: 22px; left: 74%; border-radius: 34px; animation-delay: -14s; }
+.cloud-2::before { width: 44px; height: 44px; top: -21px; left: 16px; }
+.cloud-2::after  { width: 56px; height: 56px; top: -28px; left: 40px; }
+@keyframes cloud-drift { 0% { transform: translateX(0); } 100% { transform: translateX(36px); } }
+.sun {
+  position: absolute; width: 80px; height: 80px; top: 28px; right: 10%;
+  background: radial-gradient(circle, #fff9c4 0%, #fff176 40%, #ffee58 100%);
+  border-radius: 50%;
+  box-shadow: 0 0 50px rgba(255,241,118,0.5), 0 0 100px rgba(255,241,118,0.2);
+  animation: sun-glow 4s ease-in-out infinite;
+}
+@keyframes sun-glow {
+  0%,100% { box-shadow: 0 0 50px rgba(255,241,118,0.5),0 0 100px rgba(255,241,118,0.2); }
+  50% { box-shadow: 0 0 70px rgba(255,241,118,0.7),0 0 140px rgba(255,241,118,0.35); }
+}
+.grass-ground {
+  position: absolute; bottom: 0; left: 0; width: 100%; height: 70px;
+  background: linear-gradient(180deg, #81c784 0%, #66bb6a 50%, #4caf50 100%);
+  border-radius: 50% 50% 0 0 / 28px 28px 0 0;
+}
+
+/* ====== 提示单词气泡 ====== */
+.hint-word-bubble {
+  position: fixed; top: 24px; right: 24px; z-index: 30;
+  background: white; border-radius: 24px; padding: 16px 28px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  font-size: 42px; font-weight: 800; color: #e65100;
+  letter-spacing: 6px; border: 4px solid #ffcc80;
+  animation: bubble-in 0.4s var(--ease-bounce);
+  pointer-events: none;
+}
+.hint-word-bubble.fade-out { animation: bubble-out 0.5s ease forwards; }
+@keyframes bubble-in { 0% { transform: scale(0.3); opacity:0; } 100% { transform: scale(1); opacity:1; } }
+@keyframes bubble-out { 0% { transform: scale(1); opacity:1; } 100% { transform: scale(0.5); opacity:0; } }
+
+/* ====== 主卡片 ====== */
+.main-card {
+  position: relative; z-index: 2;
+  width: 700px;
+  margin-top: 12px;
+  background: var(--white-card);
+  border-radius: 44px;
+  padding: 30px 44px 24px;
+  box-shadow: var(--shadow-card);
+  text-align: center;
+  border: 3px solid var(--mint-pale);
+}
+
+/* 花环 & 小草 */
+.card-garland {
+  position: absolute; top: -24px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 3px;
+}
+.garland-flower {
+  width: 22px; height: 22px; border-radius: 50%;
+  animation: garland-bounce 2s ease-in-out infinite;
+}
+.garland-flower:nth-child(1) { background:#f48fb1; animation-delay:0s; }
+.garland-flower:nth-child(2) { background:#fff176; animation-delay:0.2s; }
+.garland-flower:nth-child(3) { background:#81c784; animation-delay:0.4s; }
+.garland-flower:nth-child(4) { background:#90caf9; animation-delay:0.6s; }
+.garland-flower:nth-child(5) { background:#ce93d8; animation-delay:0.8s; }
+.garland-flower:nth-child(6) { background:#ffab91; animation-delay:1.0s; }
+.garland-flower:nth-child(7) { background:#f48fb1; animation-delay:1.2s; }
+@keyframes garland-bounce { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-5px); } }
+
+.card-grass {
+  position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 12px; pointer-events: none;
+}
+.grass-blade { width: 3px; background: #a5d6a7; border-radius: 50% 50% 0 0; animation: grass-sway 3s ease-in-out infinite; }
+.grass-blade:nth-child(1) { height:22px; }
+.grass-blade:nth-child(2) { height:28px; animation-delay:0.3s; }
+.grass-blade:nth-child(3) { height:18px; animation-delay:0.6s; }
+.grass-blade:nth-child(4) { height:25px; animation-delay:0.9s; }
+.grass-blade:nth-child(5) { height:20px; animation-delay:1.2s; }
+@keyframes grass-sway { 0%,100% { transform:rotate(-4deg); } 50% { transform:rotate(4deg); } }
+
+/* ====== 顶部栏 ====== */
+.top-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 4px;
+}
+.score-badge {
+  font-size: 18px; font-weight: 700; color: var(--brown-text);
+  background: var(--cream); padding: 6px 18px;
+  border-radius: 28px; border: 2px solid var(--sunshine-light);
+}
+.streak-badge {
+  font-size: 17px; font-weight: 700; color: #e65100;
+  background: #fff3e0; padding: 6px 16px;
+  border-radius: 28px; border: 2px solid #ffe0b2;
+}
+.progress-dots {
+  display: flex; gap: 6px; align-items: center;
+}
+.dot { width: 14px; height: 14px; border-radius: 50%; background: #e0e0e0; transition: all 0.4s ease; }
+.dot.done { background: #66bb6a; }
+.dot.current { background: #fff176; box-shadow: 0 0 12px rgba(255,241,118,0.6); }
+
+/* ====== 标题 ====== */
+.title-area { margin-bottom: 4px; }
+.app-icon { font-size: 42px; display: inline-block; animation: chick-bounce 2s ease-in-out infinite; }
+@keyframes chick-bounce { 0%,100% { transform:translateY(0); } 30% { transform:translateY(-8px); } 50% { transform:translateY(0); } 70% { transform:translateY(-4px); } }
+.title { font-size: 26px; font-weight: 800; color: var(--mint); letter-spacing: 3px; }
+
+/* ====== 中文翻译 ====== */
+.chinese-area { margin: 6px 0 8px; }
+.chinese-badge {
+  display: inline-block;
+  font-size: 26px; font-weight: 800;
+  color: #5d4037;
+  background: linear-gradient(135deg, #fffde7, #fff9c4);
+  padding: 8px 32px;
+  border-radius: 32px;
+  border: 3px solid #fff176;
+  box-shadow: 0 3px 12px rgba(255,241,118,0.3);
+}
+
+/* ====== 单词展示 ====== */
+.word-display {
+  display: flex; justify-content: center; align-items: center;
+  gap: 12px; margin: 10px 0 14px; flex-wrap: wrap;
+  min-height: 130px;
+}
+.letter-box {
+  width: 90px; height: 120px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 60px; font-weight: 800;
+  border-radius: 24px;
+  transition: all 0.25s var(--ease-bounce);
+  position: relative;
+}
+.letter-shown {
+  background: linear-gradient(180deg, #fffde7 0%, #fff9c4 100%);
+  color: #5d4037;
+  box-shadow: 0 6px 24px rgba(102,187,106,0.3);
+  border: 3px solid #fff176;
+}
+
+/* 空白格子（放置区） */
+.letter-blank {
+  background: #f5f5f5;
+  border: 3px dashed #a5d6a7;
+  box-shadow: inset 0 3px 8px rgba(0,0,0,0.05);
+  animation: pulse-blank 2.5s ease-in-out infinite;
+  transition: all 0.25s ease;
+}
+.letter-blank::after {
+  content: '?'; font-size: 44px; color: #c8e6c9; font-weight: 400;
+}
+.letter-blank.drag-over {
+  border-color: #ff7043;
+  border-style: solid;
+  box-shadow: 0 0 28px rgba(255,112,67,0.5);
+  animation: none;
+  background: #fff3e0;
+  transform: scale(1.08);
+}
+@keyframes pulse-blank { 0%,100% { border-color:#a5d6a7; } 50% { border-color:#66bb6a; } }
+
+/* 空白已填 */
+.letter-blank.filled {
+  border: 3px solid #66bb6a;
+  background: linear-gradient(180deg, #e8f5e9 0%, #c8e6c9 100%);
+  animation: none;
+  color: #2e7d32;
+  font-size: 60px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.letter-blank.filled::after { content: ''; }
+.letter-blank.filled.correct-fill { box-shadow: 0 6px 20px rgba(102,187,106,0.5); }
+.letter-blank.filled.wrong-fill {
+  border-color: #e53935;
+  background: linear-gradient(180deg, #ffebee 0%, #ffcdd2 100%);
+  color: #c62828;
+}
+
+/* ====== 拖拽源字母卡片 ====== */
+.drag-source-area {
+  margin: 6px 0 4px;
+}
+.drag-label {
+  font-size: 14px; color: #a5d6a7; margin-bottom: 10px;
+}
+.drag-tiles {
+  display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;
+  min-height: 82px;
+}
+.drag-tile {
+  width: 75px; height: 75px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 40px; font-weight: 800;
+  border-radius: 20px;
+  cursor: grab;
+  background: linear-gradient(180deg, #ffffff 0%, #f5f5f5 100%);
+  color: #5d4037;
+  border: 3px solid #c8e6c9;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  transition: all 0.2s var(--ease-bounce);
+  font-family: 'Segoe UI', 'PingFang SC', sans-serif;
+}
+.drag-tile:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(102,187,106,0.25);
+  border-color: var(--mint);
+}
+.drag-tile:active { cursor: grabbing; }
+.drag-tile.dragging {
+  opacity: 0.4;
+  transform: scale(0.85);
+}
+.drag-tile.used {
+  opacity: 0.2;
+  pointer-events: none;
+  transform: scale(0.8);
+}
+
+/* ====== 按钮 ====== */
+.controls-row { display: flex; justify-content: center; gap: 12px; margin-top: 10px; }
+.btn {
+  height: 52px; padding: 0 26px;
+  font-size: 18px; font-weight: 700;
+  border: none; border-radius: 32px;
+  cursor: pointer; outline: none;
+  transition: all 0.2s var(--ease-bounce);
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+.btn:active { transform: scale(0.94); }
+.btn-hint {
+  background: linear-gradient(135deg, #f48fb1, #ec407a);
+  color: white;
+  box-shadow: 0 4px 16px rgba(244,143,177,0.35);
+}
+.btn-hint:hover { box-shadow: 0 6px 24px rgba(244,143,177,0.5); transform: translateY(-2px); }
+.btn-check {
+  background: linear-gradient(135deg, #66bb6a, #43a047);
+  color: white;
+  box-shadow: 0 4px 16px rgba(102,187,106,0.35);
+}
+.btn-check:hover { box-shadow: 0 6px 24px rgba(102,187,106,0.5); transform: translateY(-2px); }
+.btn-check:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-clear {
+  background: white; color: #8d6e63;
+  border: 2px solid #e0e0e0;
+}
+.btn-clear:hover { border-color: #a5d6a7; }
+.btn-next {
+  background: linear-gradient(135deg, #ffab91, #ff7043);
+  color: white;
+  box-shadow: 0 4px 16px rgba(255,171,145,0.35);
+}
+.btn-next:hover { box-shadow: 0 6px 24px rgba(255,171,145,0.5); transform: translateY(-2px); }
+
+/* ====== 反馈 ====== */
+.feedback {
+  margin-top: 4px; min-height: 30px;
+  font-size: 20px; font-weight: 700;
+}
+.feedback.correct { color: #43a047; }
+.feedback.wrong { color: #e53935; animation: shake 0.5s ease; }
+@keyframes shake { 0%,100% { transform:translateX(0); } 25% { transform:translateX(-8px); } 75% { transform:translateX(8px); } }
+
+/* ====== 撒花 ====== */
+.confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 20; }
+.petal-piece {
+  position: absolute; border-radius: 50% 0 50% 0;
+  animation: petal-fall 2s ease-out forwards;
+}
+@keyframes petal-fall {
+  0%   { transform: translateY(-60px) rotate(0deg) scale(0.5); opacity:1; }
+  100% { transform: translateY(850px) rotate(400deg) scale(0.3); opacity:0; }
+}
+.score-popup {
+  position: fixed; z-index: 21; pointer-events: none;
+  font-size: 48px; font-weight: 800; color: #43a047;
+  animation: pop-up 1s ease-out forwards;
+  text-shadow: 0 2px 8px rgba(67,160,71,0.3);
+}
+@keyframes pop-up { 0% { transform:translateY(0) scale(0.3); opacity:1; } 100% { transform:translateY(-150px) scale(1.5); opacity:0; } }
+</style>
+</head>
+<body>
+
+<!-- 花园背景 -->
+<div class="garden-layer">
+  <div class="cloud cloud-1"></div>
+  <div class="cloud cloud-2"></div>
+  <div class="sun"></div>
+  <div class="grass-ground"></div>
+</div>
+
+<!-- 提示单词气泡 -->
+<div class="hint-word-bubble" id="hint-bubble" style="display:none"></div>
+
+<!-- 主卡片 -->
+<div class="main-card">
+  <div class="card-garland">
+    <div class="garland-flower"></div><div class="garland-flower"></div>
+    <div class="garland-flower"></div><div class="garland-flower"></div>
+    <div class="garland-flower"></div><div class="garland-flower"></div>
+    <div class="garland-flower"></div>
+  </div>
+  <div class="card-grass">
+    <div class="grass-blade"></div><div class="grass-blade"></div>
+    <div class="grass-blade"></div><div class="grass-blade"></div>
+    <div class="grass-blade"></div>
+  </div>
+
+  <!-- 顶部状态栏 -->
+  <div class="top-bar">
+    <div class="score-badge">⭐ 得分 <span id="score">0</span></div>
+    <div class="progress-dots" id="progress-dots"></div>
+    <div class="streak-badge" style="display:none" id="streak-badge">🔥 连对 <span id="streak">0</span></div>
+  </div>
+
+  <!-- 标题 -->
+  <div class="title-area">
+    <span class="app-icon">🐣</span>
+    <span class="title">快乐背单词 — 拖拽拼写</span>
+  </div>
+
+  <!-- 中文翻译 -->
+  <div class="chinese-area">
+    <div class="chinese-badge" id="chinese-badge">🐶 狗</div>
+  </div>
+
+  <!-- 单词字母展示（含可放置空白） -->
+  <div class="word-display" id="word-display"></div>
+
+  <!-- 反馈 -->
+  <div class="feedback" id="feedback"></div>
+
+  <!-- 拖拽字母来源 -->
+  <div class="drag-source-area">
+    <div class="drag-label">🖐️ 把下方字母拖到单词空白处（点击已填字母可撤回）</div>
+    <div class="drag-tiles" id="drag-tiles"></div>
+  </div>
+
+  <!-- 控制按钮 -->
+  <div class="controls-row" id="controls-row">
+    <button class="btn btn-clear" onclick="clearBlanks()">🔄 清空</button>
+    <button class="btn btn-hint" id="btn-hint" onclick="showHint()">🔊 提示</button>
+    <button class="btn btn-check" id="btn-check" onclick="checkAnswer()" disabled>✅ 检查</button>
+  </div>
+</div>
+
+<script>
+// ====== 单词库 ======
+const wordBank = [
+  { word: 'apple', chinese: '苹果' },     { word: 'banana', chinese: '香蕉' },
+  { word: 'cat', chinese: '猫' },         { word: 'dog', chinese: '狗' },
+  { word: 'elephant', chinese: '大象' },   { word: 'fish', chinese: '鱼' },
+  { word: 'grape', chinese: '葡萄' },     { word: 'happy', chinese: '开心的' },
+  { word: 'island', chinese: '岛屿' },    { word: 'jump', chinese: '跳' },
+  { word: 'king', chinese: '国王' },       { word: 'lion', chinese: '狮子' },
+  { word: 'monkey', chinese: '猴子' },     { word: 'night', chinese: '夜晚' },
+  { word: 'orange', chinese: '橙子' },    { word: 'panda', chinese: '熊猫' },
+  { word: 'queen', chinese: '女王' },      { word: 'rabbit', chinese: '兔子' },
+  { word: 'school', chinese: '学校' },     { word: 'tiger', chinese: '老虎' },
+  { word: 'umbrella', chinese: '雨伞' },   { word: 'voice', chinese: '声音' },
+  { word: 'water', chinese: '水' },        { word: 'yellow', chinese: '黄色' },
+  { word: 'zebra', chinese: '斑马' },      { word: 'book', chinese: '书' },
+  { word: 'cake', chinese: '蛋糕' },       { word: 'door', chinese: '门' },
+  { word: 'egg', chinese: '鸡蛋' },        { word: 'flower', chinese: '花' },
+  { word: 'garden', chinese: '花园' },     { word: 'house', chinese: '房子' },
+  { word: 'milk', chinese: '牛奶' },       { word: 'noodle', chinese: '面条' },
+  { word: 'pencil', chinese: '铅笔' },     { word: 'robot', chinese: '机器人' },
+  { word: 'sun', chinese: '太阳' },        { word: 'tree', chinese: '树' },
+  { word: 'moon', chinese: '月亮' },       { word: 'star', chinese: '星星' },
+];
+
+// ====== 状态 ======
+let currentWord = null;
+let score = 0, streak = 0, wordsDone = 0, totalQuestions = 10;
+let hintUsed = false, usedWords = [];
+let blankPositions = [], blankValues = [];
+let optionLetters = [];
+let answered = false;
+let autoNextTimer = null;
+let hintBubbleTimer = null;
+
+// ====== 语音 ======
+function speak(text) {
+  if (!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'en-US'; utter.rate = 0.85; utter.pitch = 1.1;
+  speechSynthesis.speak(utter);
+}
+
+// ====== 右上角气泡 ======
+function showHintBubble(word) {
+  clearTimeout(hintBubbleTimer);
+  const bubble = document.getElementById('hint-bubble');
+  bubble.textContent = word.toUpperCase();
+  bubble.style.display = 'block';
+  bubble.classList.remove('fade-out');
+  hintBubbleTimer = setTimeout(() => {
+    bubble.classList.add('fade-out');
+    setTimeout(() => { bubble.style.display = 'none'; }, 500);
+  }, 3000);
+}
+
+// ====== 选词 ======
+function pickWord() {
+  if (usedWords.length >= wordBank.length) usedWords = [];
+  let available = wordBank.filter((_, i) => !usedWords.includes(i));
+  let idx = wordBank.indexOf(available[Math.floor(Math.random() * available.length)]);
+  usedWords.push(idx);
+  return wordBank[idx];
+}
+
+// ====== 生成选项 ======
+function generateOptions(wordObj, blanks) {
+  const missing = blanks.map(i => wordObj.word[i].toUpperCase());
+  const allLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let options = [...missing];
+  const target = Math.max(7, missing.length + 3);
+  while (options.length < target) {
+    const rnd = allLetters[Math.floor(Math.random() * 26)];
+    if (!options.includes(rnd)) options.push(rnd);
+  }
+  for (let i = options.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [options[i], options[j]] = [options[j], options[i]];
+  }
+  return options;
+}
+
+// ====== 渲染全部 ======
+function renderWord() {
+  answered = false; hintUsed = false;
+  blankValues = [];
+  clearTimeout(autoNextTimer); clearTimeout(hintBubbleTimer);
+  document.getElementById('hint-bubble').style.display = 'none';
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('btn-check').disabled = true;
+  document.getElementById('btn-hint').disabled = false;
+  const oldNext = document.getElementById('next-btn');
+  if (oldNext) oldNext.remove();
+
+  currentWord = pickWord();
+  const len = currentWord.word.length;
+  let numBlanks = Math.min(Math.max(1, Math.ceil(len * 0.35)), 3, len - 1);
+  let allPos = Array.from({length: len}, (_, i) => i);
+  for (let i = allPos.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [allPos[i], allPos[j]] = [allPos[j], allPos[i]];
+  }
+  blankPositions = allPos.slice(0, numBlanks).sort((a,b) => a-b);
+  blankValues = new Array(blankPositions.length).fill(null);
+
+  // 单词展示
+  const display = document.getElementById('word-display');
+  display.innerHTML = '';
+  for (let i = 0; i < len; i++) {
+    const box = document.createElement('div');
+    box.className = 'letter-box';
+    const blankIdx = blankPositions.indexOf(i);
+    if (blankIdx >= 0) {
+      box.className += ' letter-blank';
+      box.dataset.blankIdx = blankIdx;
+      // Drop 事件
+      box.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        if (answered || blankValues[blankIdx] !== null) return;
+        box.classList.add('drag-over');
+      });
+      box.addEventListener('dragleave', () => box.classList.remove('drag-over'));
+      box.addEventListener('drop', (e) => {
+        e.preventDefault();
+        box.classList.remove('drag-over');
+        if (answered || blankValues[blankIdx] !== null) return;
+        const letter = e.dataTransfer.getData('text/plain');
+        if (letter) fillBlankViaDrag(blankIdx, letter);
+      });
+      // 点击撤回
+      box.addEventListener('click', () => handleBlankClick(blankIdx));
+    } else {
+      box.className += ' letter-shown';
+      box.textContent = currentWord.word[i].toUpperCase();
+    }
+    display.appendChild(box);
+  }
+
+  // 中文
+  document.getElementById('chinese-badge').textContent = '💬 ' + currentWord.chinese;
+
+  // 拖拽源字母
+  optionLetters = generateOptions(currentWord, blankPositions);
+  renderDragTiles();
+
+  updateProgressDots();
+}
+
+// ====== 渲染拖拽字母方块 ======
+function renderDragTiles() {
+  const container = document.getElementById('drag-tiles');
+  container.innerHTML = '';
+  optionLetters.forEach((letter, i) => {
+    const tile = document.createElement('div');
+    tile.className = 'drag-tile';
+    tile.textContent = letter;
+    tile.draggable = true;
+    tile.dataset.tileIdx = i;
+    tile.dataset.letter = letter;
+    tile.addEventListener('dragstart', (e) => {
+      if (answered || tile.classList.contains('used')) {
+        e.preventDefault();
+        return;
+      }
+      tile.classList.add('dragging');
+      e.dataTransfer.setData('text/plain', letter);
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    tile.addEventListener('dragend', () => tile.classList.remove('dragging'));
+    container.appendChild(tile);
+  });
+}
+
+// ====== 拖拽填入 ======
+function fillBlankViaDrag(blankIdx, letter) {
+  if (answered) return;
+
+  // 找对应的 tile
+  const tiles = document.querySelectorAll('.drag-tile');
+  let foundTile = null;
+  for (const tile of tiles) {
+    if (tile.dataset.letter === letter && !tile.classList.contains('used')) {
+      foundTile = tile;
+      break;
+    }
+  }
+  if (!foundTile) return;
+
+  // 填入
+  blankValues[blankIdx] = letter;
+  const blanks = document.querySelectorAll('.letter-blank');
+  blanks[blankIdx].classList.add('filled');
+  blanks[blankIdx].textContent = letter;
+
+  // 标记 tile 已用
+  foundTile.classList.add('used');
+
+  // 全填满 → 启用检查
+  if (blankValues.every(v => v !== null)) {
+    document.getElementById('btn-check').disabled = false;
+  }
+}
+
+// ====== 点击已填空白 → 撤回 ======
+function handleBlankClick(blankIdx) {
+  if (answered) return;
+  if (blankValues[blankIdx] === null) return;
+
+  const letter = blankValues[blankIdx];
+  blankValues[blankIdx] = null;
+
+  const blanks = document.querySelectorAll('.letter-blank');
+  blanks[blankIdx].classList.remove('filled', 'correct-fill', 'wrong-fill');
+  blanks[blankIdx].textContent = '';
+
+  // 恢复 tile
+  const tiles = document.querySelectorAll('.drag-tile');
+  for (const tile of tiles) {
+    if (tile.dataset.letter === letter && tile.classList.contains('used')) {
+      tile.classList.remove('used');
+      break;
+    }
+  }
+
+  document.getElementById('btn-check').disabled = true;
+}
+
+// ====== 清空 ======
+function clearBlanks() {
+  if (answered) return;
+  blankValues = blankValues.map(() => null);
+  const blanks = document.querySelectorAll('.letter-blank');
+  blanks.forEach(b => { b.classList.remove('filled'); b.textContent = ''; });
+  document.querySelectorAll('.drag-tile').forEach(t => t.classList.remove('used'));
+  document.getElementById('btn-check').disabled = true;
+}
+
+// ====== 提示 ======
+function showHint() {
+  if (answered) return;
+  hintUsed = true;
+  document.getElementById('btn-hint').disabled = true;
+
+  // 语音 + 右上角
+  speak(currentWord.word);
+  showHintBubble(currentWord.word);
+
+  // 自动填入第一个空位
+  const targetIdx = blankValues.findIndex(v => v === null);
+  if (targetIdx === -1) return;
+
+  const correctLetter = currentWord.word[blankPositions[targetIdx]].toUpperCase();
+  blankValues[targetIdx] = correctLetter;
+
+  const blanks = document.querySelectorAll('.letter-blank');
+  blanks[targetIdx].classList.add('filled');
+  blanks[targetIdx].textContent = correctLetter;
+
+  // 标记 tile
+  const tiles = document.querySelectorAll('.drag-tile');
+  for (const tile of tiles) {
+    if (tile.dataset.letter === correctLetter && !tile.classList.contains('used')) {
+      tile.classList.add('used');
+      break;
+    }
+  }
+
+  if (blankValues.every(v => v !== null)) {
+    document.getElementById('btn-check').disabled = false;
+  }
+}
+
+// ====== 检查 ======
+function checkAnswer() {
+  if (answered) return;
+  answered = true;
+  clearTimeout(autoNextTimer);
+
+  const feedback = document.getElementById('feedback');
+  const correctWord = currentWord.word.toUpperCase();
+
+  let userWordArr = currentWord.word.toUpperCase().split('');
+  blankPositions.forEach((pos, i) => { userWordArr[pos] = blankValues[i] || ''; });
+  const userWord = userWordArr.join('');
+
+  const blanks = document.querySelectorAll('.letter-blank');
+  document.querySelectorAll('.drag-tile').forEach(t => { t.style.pointerEvents = 'none'; t.style.opacity = '0.4'; });
+  document.getElementById('btn-check').disabled = true;
+  document.getElementById('btn-hint').disabled = true;
+
+  if (userWord === correctWord) {
+    feedback.className = 'feedback correct';
+    let bonus = hintUsed ? 0 : 10;  // 拖拽模式：用提示=0分
+    if (streak >= 3) bonus += 5;
+    score += bonus;
+    streak++;
+    wordsDone++;
+    feedback.innerHTML = `🎉 太棒了！${hintUsed ? '(提示不计分)' : '+'+bonus+'分'}<br>正确答案：<strong>${correctWord}</strong>`;
+
+    blanks.forEach(b => b.classList.add('correct-fill'));
+    document.getElementById('score').textContent = score;
+
+    if (streak >= 2) {
+      document.getElementById('streak-badge').style.display = 'block';
+      document.getElementById('streak').textContent = streak;
+    }
+    if (!hintUsed) { spawnPetals(); showScorePopup('+' + bonus); }
+
+    autoNextTimer = setTimeout(() => nextWord(), 1500);
+  } else {
+    feedback.className = 'feedback wrong';
+    feedback.innerHTML = `😢 再试试哦~ 正确答案：<strong>${correctWord}</strong>`;
+    streak = 0; wordsDone++;
+    document.getElementById('streak-badge').style.display = 'none';
+
+    blankPositions.forEach((pos, i) => {
+      const c = correctWord[pos];
+      blanks[i].textContent = c;
+      blanks[i].classList.add(blankValues[i] === c ? 'correct-fill' : 'wrong-fill');
+    });
+  }
+
+  updateProgressDots();
+
+  const ctrl = document.getElementById('controls-row');
+  const nextBtn = document.createElement('button');
+  nextBtn.id = 'next-btn';
+  nextBtn.className = 'btn btn-next';
+  nextBtn.textContent = '🌸 下一题';
+  nextBtn.onclick = () => { clearTimeout(autoNextTimer); nextWord(); };
+  ctrl.appendChild(nextBtn);
+}
+
+// ====== 下一题 ======
+function nextWord() {
+  clearTimeout(autoNextTimer);
+  const nb = document.getElementById('next-btn'); if (nb) nb.remove();
+
+  if (wordsDone >= totalQuestions) {
+    alert('🎉 本轮完成！总分：' + score + ' 分\n继续加油哦~');
+    score = 0; wordsDone = 0; streak = 0;
+    document.getElementById('score').textContent = '0';
+    document.getElementById('streak-badge').style.display = 'none';
+    usedWords = [];
+  }
+  renderWord();
+}
+
+// ====== 进度圆点 ======
+function updateProgressDots() {
+  const container = document.getElementById('progress-dots');
+  container.innerHTML = '';
+  for (let i = 0; i < totalQuestions; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'dot';
+    if (i < wordsDone) dot.classList.add('done');
+    if (i === wordsDone) dot.classList.add('current');
+    container.appendChild(dot);
+  }
+}
+
+// ====== 撒花 ======
+function spawnPetals() {
+  const container = document.createElement('div');
+  container.className = 'confetti-container';
+  const colors = ['#f48fb1','#ce93d8','#fff176','#81c784','#90caf9','#ffab91'];
+  for (let i = 0; i < 30; i++) {
+    const petal = document.createElement('div');
+    petal.className = 'petal-piece';
+    petal.style.left = Math.random() * 100 + '%';
+    petal.style.top = -(Math.random() * 60) + 'px';
+    petal.style.width = (10 + Math.random() * 16) + 'px';
+    petal.style.height = (10 + Math.random() * 16) + 'px';
+    petal.style.background = colors[Math.floor(Math.random() * colors.length)];
+    petal.style.animationDelay = Math.random() * 0.8 + 's';
+    petal.style.duration = (1.4 + Math.random() * 2) + 's';
+    container.appendChild(petal);
+  }
+  document.body.appendChild(container);
+  setTimeout(() => container.remove(), 3000);
+}
+
+function showScorePopup(text) {
+  const popup = document.createElement('div');
+  popup.className = 'score-popup';
+  popup.textContent = text;
+  popup.style.left = (35 + Math.random() * 30) + '%';
+  popup.style.top = '40%';
+  document.body.appendChild(popup);
+  setTimeout(() => popup.remove(), 1200);
+}
+
+// ====== 键盘 ======
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    const nb = document.getElementById('next-btn');
+    if (nb) { clearTimeout(autoNextTimer); nextWord(); }
+    else if (!answered && blankValues.every(v => v !== null)) checkAnswer();
+  }
+});
+
+// 启动
+updateProgressDots();
+renderWord();
+</script>
+
+</body>
+</html>

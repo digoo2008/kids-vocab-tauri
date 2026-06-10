@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280, height=800, initial-scale=1.0">
+<title>🐣 快乐背单词 — 花园童话</title>
+<style>
+/* ====== Design System: Garden Fairy Tale ====== */
+:root {
+  /* 核心色板 */
+  --bg-grass: #e8f5e9;
+  --bg-sky: #f0f7e6;
+  --card-bg: #fffff9;
+  --mint: #66bb6a;
+  --mint-light: #a5d6a7;
+  --mint-pale: #c8e6c9;
+  --blush: #f48fb1;
+  --blush-light: #f8bbd0;
+  --blush-pale: #fce4ec;
+  --sunshine: #fff176;
+  --sunshine-light: #fff9c4;
+  --cream: #fffde7;
+  --brown: #8d6e63;
+  --brown-text: #5d4037;
+  --ink: #3e2723;
+
+  /* 形状 */
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 32px;
+  --radius-xl: 48px;
+
+  /* 阴影 */
+  --shadow-card: 0 8px 40px rgba(102, 187, 106, 0.15), 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-btn: 0 4px 16px rgba(0,0,0,0.12);
+  --shadow-letter-shown: 0 6px 20px rgba(102, 187, 106, 0.35);
+  --shadow-letter-blank: inset 0 3px 8px rgba(0,0,0,0.06);
+
+  /* 动效 */
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-spring: cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  width: 1280px;
+  height: 800px;
+  overflow: hidden;
+  font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: linear-gradient(180deg, #e8f8e0 0%, #d4edc9 30%, #c8e6c9 60%, #a5d6a7 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  position: relative;
+}
+
+/* ====== 花园背景装饰层 ====== */
+.garden-layer {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 云朵 */
+.cloud {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  opacity: 0.7;
+}
+.cloud::before, .cloud::after {
+  content: '';
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+}
+.cloud-1 {
+  width: 140px; height: 50px;
+  top: 40px; left: 8%;
+  border-radius: 50px;
+  animation: cloud-drift 25s linear infinite;
+}
+.cloud-1::before { width: 60px; height: 60px; top: -30px; left: 25px; }
+.cloud-1::after  { width: 80px; height: 80px; top: -40px; left: 55px; }
+
+.cloud-2 {
+  width: 110px; height: 38px;
+  top: 25px; left: 72%;
+  border-radius: 38px;
+  animation: cloud-drift 30s linear infinite;
+  animation-delay: -12s;
+}
+.cloud-2::before { width: 48px; height: 48px; top: -24px; left: 18px; }
+.cloud-2::after  { width: 60px; height: 60px; top: -30px; left: 42px; }
+
+.cloud-3 {
+  width: 90px; height: 30px;
+  top: 60px; left: 45%;
+  border-radius: 30px;
+  animation: cloud-drift 20s linear infinite;
+  animation-delay: -5s;
+  opacity: 0.5;
+}
+.cloud-3::before { width: 40px; height: 40px; top: -20px; left: 15px; }
+.cloud-3::after  { width: 50px; height: 50px; top: -25px; left: 35px; }
+
+@keyframes cloud-drift {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(40px); }
+}
+
+/* 太阳 */
+.sun {
+  position: absolute;
+  width: 90px; height: 90px;
+  top: 30px; right: 12%;
+  background: radial-gradient(circle, #fff9c4 0%, #fff176 40%, #ffee58 100%);
+  border-radius: 50%;
+  box-shadow: 0 0 60px rgba(255, 241, 118, 0.5), 0 0 120px rgba(255, 241, 118, 0.25);
+  animation: sun-glow 4s ease-in-out infinite;
+}
+@keyframes sun-glow {
+  0%, 100% { box-shadow: 0 0 60px rgba(255, 241, 118, 0.5), 0 0 120px rgba(255, 241, 118, 0.25); }
+  50% { box-shadow: 0 0 80px rgba(255, 241, 118, 0.7), 0 0 160px rgba(255, 241, 118, 0.4); }
+}
+
+/* 草地 */
+.grass-ground {
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 100%; height: 80px;
+  background: linear-gradient(180deg, #81c784 0%, #66bb6a 50%, #4caf50 100%);
+  border-radius: 60% 60% 0 0 / 30px 30px 0 0;
+}
+
+/* 花朵 */
+.flower {
+  position: absolute;
+  bottom: 60px;
+}
+.flower-stem {
+  width: 3px; height: 50px;
+  background: #66bb6a;
+  margin: 0 auto;
+  border-radius: 2px;
+}
+.flower-head {
+  position: relative;
+  width: 30px; height: 30px;
+  margin-top: -10px;
+}
+.petal {
+  position: absolute;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+}
+.petal:nth-child(1) { top: -4px; left: 8px; }
+.petal:nth-child(2) { top: 3px; left: 16px; }
+.petal:nth-child(3) { top: 10px; left: 8px; }
+.petal:nth-child(4) { top: 3px; left: 0px; }
+.petal-center {
+  position: absolute;
+  width: 12px; height: 12px;
+  background: #fff9c4;
+  border-radius: 50%;
+  top: 9px; left: 9px;
+}
+
+/* 花朵位置和颜色 */
+.flower-1 { left: 5%; }
+.flower-1 .petal { background: #f48fb1; }
+
+.flower-2 { left: 18%; }
+.flower-2 .petal { background: #fff176; }
+.flower-2 .flower-stem { height: 40px; }
+
+.flower-3 { left: 82%; }
+.flower-3 .petal { background: #ce93d8; }
+
+.flower-4 { left: 92%; }
+.flower-4 .petal { background: #f48fb1; }
+.flower-4 .flower-stem { height: 35px; }
+
+.flower-5 { left: 35%; }
+.flower-5 .petal { background: #ffab91; }
+.flower-5 .flower-stem { height: 55px; }
+
+.flower-6 { left: 55%; }
+.flower-6 .petal { background: #90caf9; }
+.flower-6 .flower-stem { height: 42px; }
+
+/* 蝴蝶 */
+.butterfly {
+  position: absolute;
+  animation: butterfly-float 6s ease-in-out infinite;
+}
+.butterfly-wing {
+  width: 16px; height: 12px;
+  background: #ce93d8;
+  border-radius: 50% 50% 0 50%;
+  opacity: 0.7;
+  animation: wing-flap 0.6s ease-in-out infinite;
+}
+.butterfly-wing.right {
+  border-radius: 50% 50% 50% 0;
+  animation-delay: 0.3s;
+}
+.butterfly-1 { top: 35%; left: 12%; animation-delay: 0s; }
+.butterfly-2 { top: 28%; left: 78%; animation-delay: -2s; }
+
+@keyframes butterfly-float {
+  0%, 100% { transform: translate(0, 0) rotate(-3deg); }
+  25% { transform: translate(20px, -15px) rotate(3deg); }
+  50% { transform: translate(10px, -25px) rotate(-2deg); }
+  75% { transform: translate(-5px, -10px) rotate(5deg); }
+}
+@keyframes wing-flap {
+  0%, 100% { transform: scaleX(1); }
+  50% { transform: scaleX(0.3); }
+}
+
+/* ====== 主卡片 ====== */
+.main-card {
+  position: relative;
+  z-index: 2;
+  width: 820px;
+  background: var(--card-bg);
+  border-radius: var(--radius-xl);
+  padding: 35px 50px 30px;
+  box-shadow: var(--shadow-card);
+  text-align: center;
+  border: 3px solid var(--mint-pale);
+}
+
+/* 卡片顶部装饰花环 */
+.card-garland {
+  position: absolute;
+  top: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+}
+.garland-flower {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  animation: garland-bounce 2s ease-in-out infinite;
+}
+.garland-flower:nth-child(1) { background: #f48fb1; animation-delay: 0s; }
+.garland-flower:nth-child(2) { background: #fff176; animation-delay: 0.2s; }
+.garland-flower:nth-child(3) { background: #81c784; animation-delay: 0.4s; }
+.garland-flower:nth-child(4) { background: #90caf9; animation-delay: 0.6s; }
+.garland-flower:nth-child(5) { background: #ce93d8; animation-delay: 0.8s; }
+.garland-flower:nth-child(6) { background: #ffab91; animation-delay: 1.0s; }
+.garland-flower:nth-child(7) { background: #f48fb1; animation-delay: 1.2s; }
+
+@keyframes garland-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* 卡片底部小草 */
+.card-grass {
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 15px;
+  pointer-events: none;
+}
+.grass-blade {
+  width: 4px;
+  background: #a5d6a7;
+  border-radius: 50% 50% 0 0;
+  animation: grass-sway 3s ease-in-out infinite;
+}
+.grass-blade:nth-child(1) { height: 24px; animation-delay: 0s; }
+.grass-blade:nth-child(2) { height: 30px; animation-delay: 0.3s; }
+.grass-blade:nth-child(3) { height: 20px; animation-delay: 0.6s; }
+.grass-blade:nth-child(4) { height: 28px; animation-delay: 0.9s; }
+.grass-blade:nth-child(5) { height: 22px; animation-delay: 1.2s; }
+.grass-blade:nth-child(6) { height: 26px; animation-delay: 1.5s; }
+.grass-blade:nth-child(7) { height: 18px; animation-delay: 1.8s; }
+
+@keyframes grass-sway {
+  0%, 100% { transform: rotate(-5deg); }
+  50% { transform: rotate(5deg); }
+}
+
+/* ====== 顶部状态栏 ====== */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.score-display {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--brown-text);
+  background: var(--cream);
+  padding: 8px 22px;
+  border-radius: var(--radius-xl);
+  border: 2px solid var(--sunshine-light);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.score-display .star-icon {
+  font-size: 22px;
+}
+
+.streak-display {
+  font-size: 19px;
+  font-weight: 700;
+  color: #e65100;
+  background: #fff3e0;
+  padding: 8px 22px;
+  border-radius: var(--radius-xl);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 2px solid #ffe0b2;
+  animation: streak-pop 0.5s var(--ease-bounce);
+}
+@keyframes streak-pop {
+  0% { transform: scale(0.8); }
+  100% { transform: scale(1); }
+}
+
+/* ====== 标题区 ====== */
+.title-area {
+  margin-bottom: 18px;
+}
+.app-icon {
+  font-size: 48px;
+  animation: chick-bounce 2s ease-in-out infinite;
+  display: inline-block;
+}
+@keyframes chick-bounce {
+  0%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-12px); }
+  50% { transform: translateY(0); }
+  70% { transform: translateY(-6px); }
+}
+.title {
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--mint);
+  letter-spacing: 3px;
+  display: inline-block;
+  margin-left: 6px;
+}
+.subtitle {
+  font-size: 15px;
+  color: #a5d6a7;
+  margin-top: 2px;
+}
+
+/* ====== 单词展示区 ====== */
+.word-display {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0 20px;
+  flex-wrap: wrap;
+}
+
+.letter-box {
+  width: 80px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 54px;
+  font-weight: 800;
+  border-radius: var(--radius-md);
+  transition: all 0.35s var(--ease-bounce);
+  position: relative;
+}
+
+.letter-shown {
+  background: linear-gradient(180deg, #fffde7 0%, #fff9c4 100%);
+  color: #5d4037;
+  box-shadow: var(--shadow-letter-shown);
+  border: 3px solid #fff176;
+}
+
+.letter-blank {
+  background: #f5f5f5;
+  color: transparent;
+  border: 3px dashed #a5d6a7;
+  box-shadow: var(--shadow-letter-blank);
+  animation: pulse-blank 2.5s ease-in-out infinite;
+}
+.letter-blank::after {
+  content: '🌱';
+  font-size: 28px;
+  position: absolute;
+  opacity: 0.5;
+}
+@keyframes pulse-blank {
+  0%, 100% { border-color: #a5d6a7; }
+  50% { border-color: #66bb6a; }
+}
+
+.letter-blank.filled {
+  background: linear-gradient(180deg, #e8f5e9 0%, #c8e6c9 100%);
+  color: #2e7d32;
+  border: 3px solid #66bb6a;
+  animation: none;
+  box-shadow: 0 6px 20px rgba(102, 187, 106, 0.4);
+}
+.letter-blank.filled::after {
+  content: '🌸';
+  font-size: 24px;
+}
+
+/* ====== 中文提示 ====== */
+.chinese-hint {
+  font-size: 20px;
+  color: #8d6e63;
+  font-weight: 700;
+  background: var(--cream);
+  display: inline-block;
+  padding: 6px 24px;
+  border-radius: var(--radius-xl);
+  margin-bottom: 16px;
+  border: 2px solid var(--sunshine-light);
+}
+
+/* ====== 输入区 ====== */
+.input-area {
+  margin-top: 8px;
+}
+.input-label {
+  font-size: 15px;
+  color: #a5d6a7;
+  margin-bottom: 10px;
+}
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+#word-input {
+  width: 300px;
+  height: 56px;
+  font-size: 30px;
+  text-align: center;
+  border: 3px solid #c8e6c9;
+  border-radius: var(--radius-xl);
+  outline: none;
+  font-family: 'Segoe UI', 'PingFang SC', sans-serif;
+  letter-spacing: 5px;
+  transition: all 0.3s ease;
+  background: #fafff5;
+  color: var(--brown-text);
+}
+#word-input:focus {
+  border-color: var(--mint);
+  box-shadow: 0 0 0 6px rgba(102, 187, 106, 0.12);
+  background: #fff;
+}
+
+.btn {
+  height: 56px;
+  padding: 0 28px;
+  font-size: 19px;
+  font-weight: 700;
+  border: none;
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  transition: all 0.25s var(--ease-bounce);
+  outline: none;
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn:active { transform: scale(0.94); }
+
+.btn-check {
+  background: linear-gradient(135deg, #66bb6a, #43a047);
+  color: white;
+  box-shadow: 0 4px 16px rgba(102, 187, 106, 0.4);
+}
+.btn-check:hover {
+  box-shadow: 0 6px 24px rgba(102, 187, 106, 0.55);
+  transform: translateY(-2px);
+}
+
+.btn-hint {
+  background: linear-gradient(135deg, #f48fb1, #ec407a);
+  color: white;
+  box-shadow: 0 4px 16px rgba(244, 143, 177, 0.4);
+}
+.btn-hint:hover {
+  box-shadow: 0 6px 24px rgba(244, 143, 177, 0.55);
+  transform: translateY(-2px);
+}
+
+.btn-next {
+  background: linear-gradient(135deg, #ffab91, #ff7043);
+  color: white;
+  box-shadow: 0 4px 16px rgba(255, 171, 145, 0.4);
+}
+.btn-next:hover {
+  box-shadow: 0 6px 24px rgba(255, 171, 145, 0.55);
+  transform: translateY(-2px);
+}
+
+.key-hint {
+  font-size: 13px;
+  color: #c8e6c9;
+  margin-top: 10px;
+}
+
+/* ====== 反馈区 ====== */
+.feedback {
+  margin-top: 14px;
+  min-height: 44px;
+  font-size: 22px;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+.feedback.correct { color: #43a047; }
+.feedback.wrong { color: #e53935; animation: shake 0.5s ease; }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+/* ====== 下一题按钮 ====== */
+.next-area {
+  margin-top: 10px;
+}
+
+/* ====== 进度条 ====== */
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #e8f5e9;
+  border-radius: 4px;
+  margin-top: 20px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #a5d6a7, #66bb6a, #43a047);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+/* ====== 撒花 (花园版 — 花瓣飘落) ====== */
+.confetti-container {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 20;
+}
+.petal-piece {
+  position: absolute;
+  border-radius: 50% 0 50% 0;
+  animation: petal-fall 2s ease-out forwards;
+}
+@keyframes petal-fall {
+  0%   { transform: translateY(-60px) rotate(0deg) scale(0.5); opacity: 1; }
+  50%  { transform: translateY(350px) rotate(180deg) translateX(30px) scale(1); opacity: 0.9; }
+  100% { transform: translateY(850px) rotate(360deg) translateX(-20px) scale(0.3); opacity: 0; }
+}
+
+/* ====== 分数弹出 ====== */
+.score-popup {
+  position: fixed;
+  z-index: 21;
+  pointer-events: none;
+  font-size: 44px;
+  font-weight: 800;
+  color: #43a047;
+  animation: pop-up 1s ease-out forwards;
+  text-shadow: 0 2px 8px rgba(67, 160, 71, 0.3);
+}
+@keyframes pop-up {
+  0%   { transform: translateY(0) scale(0.4); opacity: 1; }
+  100% { transform: translateY(-140px) scale(1.4); opacity: 0; }
+}
+
+/* ====== Tweaks Panel (设计预览用) ====== */
+.tweaks-panel {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 30;
+  background: white;
+  border-radius: 16px;
+  padding: 12px 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  font-size: 13px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  border: 2px solid #e0e0e0;
+}
+.tweaks-panel label {
+  color: #666;
+  font-size: 12px;
+}
+.tweaks-panel select {
+  border: 2px solid #c8e6c9;
+  border-radius: 8px;
+  padding: 3px 8px;
+  font-size: 13px;
+  background: #fafff5;
+  cursor: pointer;
+}
+</style>
+</head>
+<body>
+
+<!-- 花园背景 -->
+<div class="garden-layer">
+  <div class="cloud cloud-1"></div>
+  <div class="cloud cloud-2"></div>
+  <div class="cloud cloud-3"></div>
+  <div class="sun"></div>
+  <div class="grass-ground"></div>
+
+  <!-- 花朵 -->
+  <div class="flower flower-1">
+    <div class="flower-head">
+      <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
+      <div class="petal-center"></div>
+    </div>
+    <div class="flower-stem"></div>
+  </div>
+  <div class="flower flower-2">
+    <div class="flower-head">
+      <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
+      <div class="petal-center"></div>
+    </div>
+    <div class="flower-stem"></div>
+  </div>
+  <div class="flower flower-3">
+    <div class="flower-head">
+      <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
+      <div class="petal-center"></div>
+    </div>
+    <div class="flower-stem"></div>
+  </div>
+  <div class="flower flower-4">
+    <div class="flower-head">
+      <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
+      <div class="petal-center"></div>
+    </div>
+    <div class="flower-stem"></div>
+  </div>
+  <div class="flower flower-5">
+    <div class="flower-head">
+      <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
+      <div class="petal-center"></div>
+    </div>
+    <div class="flower-stem"></div>
+  </div>
+  <div class="flower flower-6">
+    <div class="flower-head">
+      <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
+      <div class="petal-center"></div>
+    </div>
+    <div class="flower-stem"></div>
+  </div>
+
+  <!-- 蝴蝶 -->
+  <div class="butterfly butterfly-1">
+    <div style="display:flex;">
+      <div class="butterfly-wing"></div>
+      <div class="butterfly-wing right"></div>
+    </div>
+  </div>
+  <div class="butterfly butterfly-2">
+    <div style="display:flex;">
+      <div class="butterfly-wing"></div>
+      <div class="butterfly-wing right"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 主卡片 -->
+<div class="main-card" id="main-card">
+  <!-- 顶部花环 -->
+  <div class="card-garland">
+    <div class="garland-flower"></div>
+    <div class="garland-flower"></div>
+    <div class="garland-flower"></div>
+    <div class="garland-flower"></div>
+    <div class="garland-flower"></div>
+    <div class="garland-flower"></div>
+    <div class="garland-flower"></div>
+  </div>
+
+  <!-- 底部小草 -->
+  <div class="card-grass">
+    <div class="grass-blade"></div>
+    <div class="grass-blade"></div>
+    <div class="grass-blade"></div>
+    <div class="grass-blade"></div>
+    <div class="grass-blade"></div>
+    <div class="grass-blade"></div>
+    <div class="grass-blade"></div>
+  </div>
+
+  <!-- 状态栏 -->
+  <div class="top-bar">
+    <div class="score-display">
+      <span class="star-icon">⭐</span> 得分：<span id="score">0</span>
+    </div>
+    <div class="streak-display" style="display:none" id="streak-display">
+      🔥 连对 <span id="streak">0</span>
+    </div>
+  </div>
+
+  <!-- 标题 -->
+  <div class="title-area">
+    <span class="app-icon">🐣</span>
+    <span class="title">快乐背单词</span>
+  </div>
+  <div class="subtitle">🌸 看看单词少了哪个字母？把它填完整吧！</div>
+
+  <!-- 单词展示 -->
+  <div class="word-display" id="word-display"></div>
+
+  <!-- 中文提示 -->
+  <div class="chinese-hint" id="chinese-hint"></div>
+
+  <!-- 输入区 -->
+  <div class="input-area">
+    <div class="input-label">🌿 在下面输入完整的单词</div>
+    <div class="input-wrapper">
+      <input type="text" id="word-input" placeholder="输入单词..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <button class="btn btn-check" onclick="checkAnswer()">✅ 检查</button>
+      <button class="btn btn-hint" onclick="showHint()">💡 提示</button>
+    </div>
+    <div class="key-hint">⌨️ 按 Enter 键提交</div>
+  </div>
+
+  <!-- 反馈 -->
+  <div class="feedback" id="feedback"></div>
+
+  <!-- 下一题 -->
+  <div class="next-area" style="display:none" id="next-area">
+    <button class="btn btn-next" onclick="nextWord()">🌸 下一题</button>
+  </div>
+
+  <!-- 进度 -->
+  <div class="progress-bar">
+    <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+  </div>
+</div>
+
+<!-- Tweaks 设计预览面板 (可收起的) -->
+<div class="tweaks-panel" id="tweaks-panel">
+  <label>🎨 设计预览调节</label>
+  <select id="accent-select" onchange="changeAccent(this.value)">
+    <option value="garden" selected>🌿 花园绿</option>
+    <option value="blush">🌸 樱花粉</option>
+    <option value="sky">☁️ 天空蓝</option>
+    <option value="sunset">🌅 暖橙</option>
+  </select>
+  <select id="density-select" onchange="changeDensity(this.value)">
+    <option value="normal" selected>正常间距</option>
+    <option value="compact">紧凑</option>
+    <option value="spacious">宽松</option>
+  </select>
+  <button onclick="toggleTweaks()" style="cursor:pointer;border:none;background:none;font-size:16px;" title="收起面板">✕</button>
+</div>
+
+<script>
+// ====== 主题切换（设计演示用） ======
+function changeAccent(theme) {
+  const root = document.documentElement;
+  const themes = {
+    garden: { mint: '#66bb6a', 'mint-light': '#a5d6a7', 'mint-pale': '#c8e6c9', blush: '#f48fb1', 'blush-light': '#f8bbd0' },
+    blush:  { mint: '#f48fb1', 'mint-light': '#f8bbd0', 'mint-pale': '#fce4ec', blush: '#ce93d8', 'blush-light': '#e1bee7' },
+    sky:    { mint: '#64b5f6', 'mint-light': '#90caf9', 'mint-pale': '#bbdefb', blush: '#81d4fa', 'blush-light': '#b3e5fc' },
+    sunset: { mint: '#ffab91', 'mint-light': '#ffccbc', 'mint-pale': '#ffe0b2', blush: '#ff8a65', 'blush-light': '#ffab91' }
+  };
+  const t = themes[theme];
+  for (const [key, val] of Object.entries(t)) {
+    root.style.setProperty(`--${key}`, val);
+  }
+  // 更新背景
+  const bgMap = {
+    garden: 'linear-gradient(180deg, #e8f8e0 0%, #d4edc9 30%, #c8e6c9 60%, #a5d6a7 100%)',
+    blush:  'linear-gradient(180deg, #fce4ec 0%, #f8bbd0 30%, #f48fb1 60%, #f06292 100%)',
+    sky:    'linear-gradient(180deg, #e3f2fd 0%, #bbdefb 30%, #90caf9 60%, #64b5f6 100%)',
+    sunset: 'linear-gradient(180deg, #fff3e0 0%, #ffe0b2 30%, #ffcc80 60%, #ffb74d 100%)'
+  };
+  document.body.style.background = bgMap[theme];
+}
+
+function changeDensity(density) {
+  const card = document.getElementById('main-card');
+  const map = {
+    normal: '35px 50px 30px',
+    compact: '20px 35px 18px',
+    spacious: '50px 65px 45px'
+  };
+  card.style.padding = map[density];
+}
+
+function toggleTweaks() {
+  document.getElementById('tweaks-panel').style.display = 'none';
+}
+
+// ====== 单词库 ======
+const wordBank = [
+  { word: 'apple', chinese: '苹果' },
+  { word: 'banana', chinese: '香蕉' },
+  { word: 'cat', chinese: '猫' },
+  { word: 'dog', chinese: '狗' },
+  { word: 'elephant', chinese: '大象' },
+  { word: 'fish', chinese: '鱼' },
+  { word: 'grape', chinese: '葡萄' },
+  { word: 'happy', chinese: '开心的' },
+  { word: 'island', chinese: '岛屿' },
+  { word: 'jump', chinese: '跳' },
+  { word: 'king', chinese: '国王' },
+  { word: 'lion', chinese: '狮子' },
+  { word: 'monkey', chinese: '猴子' },
+  { word: 'night', chinese: '夜晚' },
+  { word: 'orange', chinese: '橙子' },
+  { word: 'panda', chinese: '熊猫' },
+  { word: 'queen', chinese: '女王' },
+  { word: 'rabbit', chinese: '兔子' },
+  { word: 'school', chinese: '学校' },
+  { word: 'tiger', chinese: '老虎' },
+  { word: 'umbrella', chinese: '雨伞' },
+  { word: 'voice', chinese: '声音' },
+  { word: 'water', chinese: '水' },
+  { word: 'yellow', chinese: '黄色' },
+  { word: 'zebra', chinese: '斑马' },
+  { word: 'book', chinese: '书' },
+  { word: 'cake', chinese: '蛋糕' },
+  { word: 'door', chinese: '门' },
+  { word: 'egg', chinese: '鸡蛋' },
+  { word: 'flower', chinese: '花' },
+  { word: 'garden', chinese: '花园' },
+  { word: 'house', chinese: '房子' },
+  { word: 'milk', chinese: '牛奶' },
+  { word: 'noodle', chinese: '面条' },
+  { word: 'pencil', chinese: '铅笔' },
+  { word: 'robot', chinese: '机器人' },
+  { word: 'sun', chinese: '太阳' },
+  { word: 'tree', chinese: '树' },
+  { word: 'moon', chinese: '月亮' },
+  { word: 'star', chinese: '星星' },
+];
+
+// ====== 状态 ======
+let currentWord = null, score = 0, streak = 0, currentBlanks = [], wordsDone = 0, hintUsed = false, usedWords = [];
+
+function pickWord() {
+  if (usedWords.length >= wordBank.length) usedWords = [];
+  let available = wordBank.filter((_, i) => !usedWords.includes(i));
+  let idx = wordBank.indexOf(available[Math.floor(Math.random() * available.length)]);
+  usedWords.push(idx);
+  return wordBank[idx];
+}
+
+function renderWord() {
+  hintUsed = false;
+  const display = document.getElementById('word-display');
+  const chineseHint = document.getElementById('chinese-hint');
+  const feedback = document.getElementById('feedback');
+  const input = document.getElementById('word-input');
+  const nextArea = document.getElementById('next-area');
+
+  display.innerHTML = '';
+  feedback.textContent = '';
+  feedback.className = 'feedback';
+  input.value = '';
+  input.focus();
+  nextArea.style.display = 'none';
+
+  currentWord = pickWord();
+  const len = currentWord.word.length;
+  let numBlanks = Math.max(1, Math.min(Math.ceil(len * 0.4), len - 1));
+  let allPos = Array.from({length: len}, (_, i) => i);
+  for (let i = allPos.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [allPos[i], allPos[j]] = [allPos[j], allPos[i]];
+  }
+  currentBlanks = allPos.slice(0, numBlanks);
+
+  for (let i = 0; i < len; i++) {
+    const box = document.createElement('div');
+    box.className = 'letter-box';
+    if (currentBlanks.includes(i)) {
+      box.className += ' letter-blank';
+      box.textContent = currentWord.word[i];
+    } else {
+      box.className += ' letter-shown';
+      box.textContent = currentWord.word[i].toUpperCase();
+    }
+    display.appendChild(box);
+  }
+  chineseHint.textContent = '💬 ' + currentWord.chinese;
+}
+
+function checkAnswer() {
+  const input = document.getElementById('word-input');
+  const feedback = document.getElementById('feedback');
+  const userAnswer = input.value.trim().toLowerCase();
+
+  if (!userAnswer) {
+    feedback.textContent = '😅 请先输入单词哦~';
+    feedback.className = 'feedback wrong';
+    return;
+  }
+
+  if (userAnswer === currentWord.word.toLowerCase()) {
+    feedback.className = 'feedback correct';
+    let bonus = hintUsed ? 5 : 10;
+    if (streak >= 3) bonus += 5;
+    score += bonus;
+    streak++;
+    wordsDone++;
+    feedback.innerHTML = `🎉 太棒了！+${bonus}分<br>正确答案就是 <strong>${currentWord.word.toUpperCase()}</strong>`;
+
+    document.querySelectorAll('.letter-blank').forEach(box => box.classList.add('filled'));
+    document.getElementById('score').textContent = score;
+
+    if (streak >= 2) {
+      const sd = document.getElementById('streak-display');
+      sd.style.display = 'flex';
+      document.getElementById('streak').textContent = streak;
+    }
+    document.getElementById('next-area').style.display = 'block';
+    document.getElementById('progress-fill').style.width = Math.min(100, (wordsDone / 10) * 100) + '%';
+    spawnPetals();
+    showScorePopup('+' + bonus);
+  } else {
+    feedback.className = 'feedback wrong';
+    feedback.innerHTML = `😢 再想想哦~ 正确答案是 <strong>${currentWord.word.toUpperCase()}</strong>`;
+    streak = 0;
+    wordsDone++;
+    document.getElementById('streak-display').style.display = 'none';
+    document.getElementById('next-area').style.display = 'block';
+    document.getElementById('progress-fill').style.width = Math.min(100, (wordsDone / 10) * 100) + '%';
+    document.querySelectorAll('.letter-blank').forEach(box => {
+      box.classList.add('filled');
+    });
+  }
+}
+
+function showHint() {
+  hintUsed = true;
+  const blanks = document.querySelectorAll('.letter-blank');
+  if (blanks.length > 0) {
+    const first = blanks[0];
+    first.classList.add('filled');
+    first.textContent = currentWord.word[parseInt(first.dataset.index || currentBlanks[0])].toUpperCase();
+  }
+}
+
+function nextWord() {
+  if (wordsDone >= 10) {
+    alert('🎉 本轮完成！总分：' + score + ' 分\n继续加油哦~');
+    score = 0; wordsDone = 0; streak = 0;
+    document.getElementById('score').textContent = '0';
+    document.getElementById('streak-display').style.display = 'none';
+    document.getElementById('progress-fill').style.width = '0%';
+    usedWords = [];
+  }
+  renderWord();
+}
+
+// 花瓣撒花
+function spawnPetals() {
+  const container = document.createElement('div');
+  container.className = 'confetti-container';
+  const colors = ['#f48fb1','#ce93d8','#fff176','#81c784','#90caf9','#ffab91','#ffcc80'];
+  for (let i = 0; i < 30; i++) {
+    const petal = document.createElement('div');
+    petal.className = 'petal-piece';
+    petal.style.left = Math.random() * 100 + '%';
+    petal.style.top = -(Math.random() * 60) + 'px';
+    petal.style.width = (10 + Math.random() * 16) + 'px';
+    petal.style.height = (10 + Math.random() * 16) + 'px';
+    petal.style.background = colors[Math.floor(Math.random() * colors.length)];
+    petal.style.animationDelay = Math.random() * 0.8 + 's';
+    petal.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+    container.appendChild(petal);
+  }
+  document.body.appendChild(container);
+  setTimeout(() => container.remove(), 3000);
+}
+
+// 得分弹出
+function showScorePopup(text) {
+  const popup = document.createElement('div');
+  popup.className = 'score-popup';
+  popup.textContent = text;
+  popup.style.left = (40 + Math.random() * 20) + '%';
+  popup.style.top = '45%';
+  document.body.appendChild(popup);
+  setTimeout(() => popup.remove(), 1200);
+}
+
+// 回车提交
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    const nextArea = document.getElementById('next-area');
+    if (nextArea.style.display !== 'none') {
+      nextWord();
+    } else {
+      checkAnswer();
+    }
+  }
+});
+
+// 启动
+renderWord();
+</script>
+
+</body>
+</html>
