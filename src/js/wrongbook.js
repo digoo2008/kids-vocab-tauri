@@ -1,68 +1,76 @@
-/**
- * 快乐背单词 - 错题本页面
- */
+// ====== 错词本 ======
+function initWrongBook() {
+  const wrong = DB.getWrong();
+  const words = Object.keys(wrong);
+  const c = document.getElementById('wrongbook-content');
 
-function renderWrongBook(container) {
-    const wrongBook = getLocal('wrongBook', []);
-    
-    let wrongListHtml = '';
-    if (wrongBook.length === 0) {
-        wrongListHtml = '<p class="empty-state">🎉 太棒了，错题本是空的！继续保持！</p>';
-    } else {
-        wrongListHtml = `
-            <div class="wrong-list-section">
-                <div class="wrong-list">
-                    ${wrongBook.map((w, idx) => `
-                        <div class="wrong-item">
-                            <div class="wrong-info">
-                                <span class="wrong-english">${escapeHtml(w.english)}</span>
-                                <span class="wrong-chinese">${escapeHtml(w.chinese)}</span>
-                                ${w.pronunciation ? `<span class="wrong-pron">${escapeHtml(w.pronunciation)}</span>` : ''}
-                            </div>
-                            <button class="btn-delete" onclick="removeWrongBookItem(${idx})" title="移出错题本">🗑️</button>
-                        </div>
-                    `).join('')}
-                </div>
+  c.innerHTML = `
+    <div class="card-garland">
+      <span class="garland-flower"></span><span class="garland-flower"></span>
+      <span class="garland-flower"></span><span class="garland-flower"></span>
+      <span class="garland-flower"></span><span class="garland-flower"></span>
+      <span class="garland-flower"></span>
+    </div>
+    <div class="title-area">
+      <span class="app-icon">📕</span><span class="title">错词本</span>
+    </div>
+
+    ${words.length === 0 ? `
+      <div style="font-size:48px;margin:30px 0 12px;">🎉</div>
+      <div style="font-size:24px;color:#43a047;font-weight:700;">没有错词，太棒了！</div>
+      <div style="font-size:18px;color:#a5d6a7;margin:8px 0 24px;">继续保持哦~</div>
+    ` : `
+      <div class="wrongbook-list">
+        ${words
+          .sort((a, b) => wrong[b].count - wrong[a].count)
+          .map(w => `
+            <div class="wrongbook-item" onclick="reviewSingleWord('${w}')">
+              <span style="font-size:28px;font-weight:800;color:#e53935;">${w.toUpperCase()}</span>
+              <span style="font-size:20px;color:#8d6e63;">${wrong[w].chinese}</span>
+              <span style="font-size:16px;color:#a5d6a7;">错 ${wrong[w].count} 次</span>
             </div>
-        `;
-    }
+          `).join('')}
+      </div>
+      <div style="display:flex;justify-content:center;gap:12px;margin-top:12px;">
+        <button class="btn btn-orange" onclick="reviewAllWrong()">🔁 复习全部错词</button>
+      </div>
+    `}
 
-    container.innerHTML = `
-        <div class="wrongbook-page">
-            <h2>📖 错题本（${wrongBook.length}个）</h2>
-            ${wrongBook.length > 0 ? `
-                <div class="wrongbook-actions">
-                    <button class="btn-primary" onclick="reviewWrongWords()">🔄 复习错题</button>
-                    <button class="btn-danger" onclick="clearWrongBook()">🗑️ 清空错题本</button>
-                </div>
-            ` : ''}
-            ${wrongListHtml}
-        </div>
-    `;
+    <div style="margin-top:16px;">
+      <button class="btn btn-green" onclick="location.hash='#home'">🏠 返回首页</button>
+    </div>
+  `;
 }
 
-function removeWrongBookItem(index) {
-    const wrongBook = getLocal('wrongBook', []);
-    wrongBook.splice(index, 1);
-    setLocal('wrongBook', wrongBook);
-    renderWrongBook(document.getElementById('page-content'));
+function reviewSingleWord(word) {
+  const wrong = DB.getWrong();
+  const bank = DB.getBank();
+  const data = wrong[word];
+  if (!data) return;
+
+  App.quizWords = [{ word, chinese: data.chinese, audio: bank[word]?.audio || '' }];
+  App.quizResults = [];
+  App.currentIdx = 0;
+  App.score = 0;
+  App.streak = 0;
+  App.quizType = 'single';
+  location.hash = '#quiz';
 }
 
-function clearWrongBook() {
-    if (confirm('确定要清空错题本吗？')) {
-        setLocal('wrongBook', []);
-        renderWrongBook(document.getElementById('page-content'));
-    }
-}
+function reviewAllWrong() {
+  const wrong = DB.getWrong();
+  const words = Object.keys(wrong);
+  if (words.length === 0) return;
 
-function reviewWrongWords() {
-    const wrongBook = getLocal('wrongBook', []);
-    if (wrongBook.length === 0) {
-        alert('错题本是空的哦～');
-        return;
-    }
-    // 用错题本单词开始练习
-    AppState.wordBank = [...wrongBook];
-    saveWordBank();
-    navigateTo('quiz');
+  const bank = DB.getBank();
+  // Shuffle
+  for (let i = words.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [words[i], words[j]] = [words[j], words[i]]; }
+  const selected = words.slice(0, Math.min(10, words.length));
+  App.quizWords = selected.map(w => ({ word: w, chinese: wrong[w].chinese, audio: bank[w]?.audio || '' }));
+  App.quizResults = [];
+  App.currentIdx = 0;
+  App.score = 0;
+  App.streak = 0;
+  App.quizType = 'wrongbook';
+  location.hash = '#quiz';
 }
