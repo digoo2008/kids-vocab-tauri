@@ -1,99 +1,31 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=1920, height=1080, initial-scale=1.0">
-<title>🐣 快乐背单词</title>
-<link rel="stylesheet" href="css/style.css">
-<style>
-/* 内联补充动画 */
-@keyframes pulse-blank { 0%,100% { border-color: #a5d6a7; } 50% { border-color: #66bb6a; } }
-@keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
-.feedback { min-height:36px; font-size:20px; font-weight:700; margin:6px 0; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>快乐背单词</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/app.js" defer></script>
+    <script src="js/home.js" defer></script>
+    <script src="js/quiz.js" defer></script>
+    <script src="js/result.js" defer></script>
+    <script src="js/wordbank.js" defer></script>
+    <script src="js/wrongbook.js" defer></script>
 </head>
 <body>
-
-<!-- ====== 首页 ====== -->
-<div id="page-home" class="page active">
-  <div class="card card-sm" style="margin-top:12px;">
-    <div class="title-area">
-      <span class="app-icon">🐣</span><span class="title">快乐背单词</span>
+    <div id="app">
+        <header id="app-header">
+            <h1>🌸 快乐背单词</h1>
+            <nav id="main-nav">
+                <button class="nav-btn active" data-page="home">🏠 首页</button>
+                <button class="nav-btn" data-page="quiz">📝 开始练习</button>
+                <button class="nav-btn" data-page="wordbank">📚 词库</button>
+                <button class="nav-btn" data-page="wrongbook">📖 错题本</button>
+            </nav>
+        </header>
+        <main id="page-content">
+            <!-- 页面内容由JS动态渲染 -->
+        </main>
     </div>
-    <div style="font-size:15px;color:#a5d6a7;margin-bottom:16px;">每天十分钟，单词记心中！</div>
-
-    <div class="select-group">
-      <label>📚 年级：</label>
-      <select id="grade-select">
-        <option value="grade1">一年级</option><option value="grade2">二年级</option>
-        <option value="grade3">三年级</option><option value="grade4">四年级</option>
-        <option value="grade5">五年级</option><option value="grade6">六年级</option>
-      </select>
-    </div>
-
-    <div class="select-group">
-      <label>📝 单词数量：</label>
-      <select id="count-select">
-        <option value="5">5 个</option><option value="10" selected>10 个</option>
-        <option value="15">15 个</option><option value="20">20 个</option>
-      </select>
-    </div>
-
-    <div class="select-group">
-      <label>🎯 题型：</label>
-      <div class="mode-tabs">
-        <button class="mode-tab" data-mode="fill">填空</button>
-        <button class="mode-tab" data-mode="drag">拖拽</button>
-        <button class="mode-tab active" data-mode="mixed">混合</button>
-      </div>
-    </div>
-
-    <button class="btn btn-green" onclick="startQuiz()" style="margin-top:20px;width:200px;height:56px;font-size:22px;">
-      🚀 开始测验
-    </button>
-
-    <div class="stats-row" style="margin-top:20px;">
-      <div class="stat-item">
-        <div class="stat-num" id="stat-today">0/10</div>
-        <div class="stat-label">今日进度</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-num" id="stat-checkin">0</div>
-        <div class="stat-label">打卡天数</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-num" id="stat-wrong">0</div>
-        <div class="stat-label">待复习</div>
-      </div>
-    </div>
-
-    <div style="margin-top:16px;display:flex;justify-content:center;gap:12px;">
-      <button class="btn btn-white" onclick="location.hash='#history'">📝 历史记录</button>
-    </div>
-  </div>
-</div>
-
-<!-- ====== 测验页 ====== -->
-<div id="page-quiz" class="page">
-  <div class="back-link" onclick="location.hash='#home'">← 返回</div>
-  <div class="card card-md" style="margin-top:12px;" id="quiz-container"></div>
-</div>
-
-<!-- ====== 结果页 ====== -->
-<div id="page-result" class="page">
-  <div class="card card-sm" style="margin-top:12px;" id="result-content"></div>
-</div>
-
-<!-- ====== 历史/错题页 ====== -->
-<div id="page-history" class="page">
-  <div class="back-link" onclick="location.hash='#home'">← 返回</div>
-  <div class="card card-md" style="margin-top:12px;" id="history-content"></div>
-</div>
-
-<script src="js/app.js"></script>
-<script src="js/home.js"></script>
-<script src="js/quiz.js"></script>
-<script src="js/result.js"></script>
-<script src="js/history.js"></script>
 </body>
 </html>

@@ -1,40 +1,34 @@
-// ====== 首页 ======
+/**
+ * 快乐背单词 - 首页
+ */
 
-async function initHome() {
-  try {
-    const stats = await Tauri.invoke('get_home_stats');
-    document.getElementById('stat-today').textContent = stats.today_completed + '/' + stats.today_target;
-    document.getElementById('stat-checkin').textContent = stats.checkin_days;
-    document.getElementById('stat-wrong').textContent = stats.wrong_count;
-  } catch(e) {
-    document.getElementById('stat-today').textContent = '0/10';
-    document.getElementById('stat-checkin').textContent = '0';
-    document.getElementById('stat-wrong').textContent = '0';
-  }
+function renderHome(container) {
+    const totalWords = AppState.wordBank.length;
+    const wrongBook = getLocal('wrongBook', []);
+    
+    container.innerHTML = `
+        <div class="home-page">
+            <div class="hero-section">
+                <h2>🌟 欢迎来到快乐背单词</h2>
+                <p class="hero-subtitle">每天练习一点点，英语进步一大步！</p>
+            </div>
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <span class="stat-icon">📚</span>
+                    <span class="stat-value">${totalWords}</span>
+                    <span class="stat-label">词库单词</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">📖</span>
+                    <span class="stat-value">${wrongBook.length}</span>
+                    <span class="stat-label">错题本</span>
+                </div>
+            </div>
+            <div class="action-section">
+                <button class="btn-primary btn-large" onclick="navigateTo('quiz')">
+                    🚀 开始背单词
+                </button>
+            </div>
+        </div>
+    `;
 }
-
-function startQuiz() {
-  const grade = document.getElementById('grade-select').value;
-  const count = parseInt(document.getElementById('count-select').value);
-  const quizType = document.querySelector('.mode-tab.active')?.dataset.mode || 'mixed';
-
-  App.settings = { grade, word_count: count, quiz_type: quizType };
-  App.currentIdx = 0;
-  App.score = 0;
-  App.streak = 0;
-  App.quizResults = [];
-
-  location.hash = '#quiz';
-}
-
-function setMode(mode, el) {
-  document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-}
-
-// 模式切换点击事件
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.mode-tab').forEach(tab => {
-    tab.addEventListener('click', () => setMode(tab.dataset.mode, tab));
-  });
-});

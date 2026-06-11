@@ -1,45 +1,33 @@
-pub mod models;
-pub mod db;
-pub mod commands;
+use serde::{Deserialize, Serialize};
 
-use db::Database;
-use std::path::PathBuf;
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Word {
+    pub english: String,
+    pub chinese: String,
+    pub pronunciation: String,
+}
+
+#[tauri::command]
+fn greet(name: &str) -> String {
+    format!("Hello, {}! Welcome to Kids Vocab App!", name)
+}
+
+#[tauri::command]
+fn get_words() -> Vec<Word> {
+    vec![
+        Word {
+            english: "apple".to_string(),
+            chinese: "苹果".to_string(),
+            pronunciation: "ˈæp.əl".to_string(),
+        },
+    ]
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .setup(|app| {
-            if cfg!(debug_assertions) {
-                app.handle().plugin(
-                    tauri_plugin_log::Builder::default()
-                        .level(log::LevelFilter::Info)
-                        .build(),
-                )?;
-            }
-
-            // Initialize database in app data directory
-            let app_data_dir: PathBuf = app
-                .path()
-                .app_data_dir()
-                .unwrap_or_else(|_| PathBuf::from("."));
-
-            let database = Database::new(app_data_dir)
-                .expect("Failed to initialize database");
-            database.seed_words()
-                .expect("Failed to seed words");
-
-            app.manage(database);
-
-            Ok(())
-        })
-        .invoke_handler(tauri::generate_handler![
-            commands::get_words,
-            commands::get_wrong_words_review,
-            commands::submit_quiz,
-            commands::get_history,
-            commands::get_wrong_list,
-            commands::get_home_stats,
-        ])
+        .plugin(tauri_plugin_shell::init())
+        .invoke_handler(tauri::generate_handler![greet, get_words])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
