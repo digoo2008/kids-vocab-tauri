@@ -1,31 +1,106 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>快乐背单词</title>
-    <link rel="stylesheet" href="css/style.css">
-    <script src="js/app.js" defer></script>
-    <script src="js/home.js" defer></script>
-    <script src="js/quiz.js" defer></script>
-    <script src="js/result.js" defer></script>
-    <script src="js/wordbank.js" defer></script>
-    <script src="js/wrongbook.js" defer></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920, height=1080, initial-scale=1.0">
+<title>🐣 快乐背单词</title>
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div id="app">
-        <header id="app-header">
-            <h1>🌸 快乐背单词</h1>
-            <nav id="main-nav">
-                <button class="nav-btn active" data-page="home">🏠 首页</button>
-                <button class="nav-btn" data-page="quiz">📝 开始练习</button>
-                <button class="nav-btn" data-page="wordbank">📚 词库</button>
-                <button class="nav-btn" data-page="wrongbook">📖 错题本</button>
-            </nav>
-        </header>
-        <main id="page-content">
-            <!-- 页面内容由JS动态渲染 -->
-        </main>
+
+<!-- 花园背景 -->
+<div class="garden-layer">
+  <div class="cloud cloud-1"></div>
+  <div class="cloud cloud-2"></div>
+  <div class="sun"></div>
+  <div class="grass-ground"></div>
+</div>
+
+<!-- 提示单词气泡（全局右上角） -->
+<div class="hint-word-bubble" id="hint-bubble" style="display:none"></div>
+
+<!-- ====== ① 首页 Hub ====== -->
+<div id="page-home" class="page active">
+  <div class="main-card">
+    <div class="card-garland">
+      <span class="garland-flower"></span><span class="garland-flower"></span>
+      <span class="garland-flower"></span><span class="garland-flower"></span>
+      <span class="garland-flower"></span><span class="garland-flower"></span>
+      <span class="garland-flower"></span>
     </div>
+    <div class="card-grass">
+      <span class="grass-blade"></span><span class="grass-blade"></span>
+      <span class="grass-blade"></span><span class="grass-blade"></span>
+      <span class="grass-blade"></span>
+    </div>
+
+    <div class="title-area">
+      <span class="app-icon">🐣</span>
+      <span class="title">快乐背单词</span>
+    </div>
+    <div class="subtitle">每天十分钟，单词记心中！</div>
+
+    <div class="hub-cards">
+      <button class="hub-card hub-card-study" onclick="startStudy()">
+        <span class="hub-icon">🎮</span>
+        <span class="hub-text">快乐背单词</span>
+      </button>
+      <button class="hub-card hub-card-wrong" id="hub-wrong" onclick="location.hash='#wrongbook'">
+        <span class="hub-icon">📕</span>
+        <span class="hub-text">错词本</span>
+        <span class="hub-count" id="hub-wrong-count">0 个</span>
+      </button>
+      <button class="hub-card hub-card-bank" onclick="location.hash='#wordbank'">
+        <span class="hub-icon">✏️</span>
+        <span class="hub-text">题库录入</span>
+      </button>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-item">
+        <div class="stat-num" id="stat-total">0</div>
+        <div class="stat-label">题库单词</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="stat-today">0</div>
+        <div class="stat-label">今日已背</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="stat-wrong">0</div>
+        <div class="stat-label">待复习</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== ② 题库录入页 ====== -->
+<div id="page-wordbank" class="page">
+  <div class="back-link" onclick="location.hash='#home'">← 返回</div>
+  <div class="main-card" id="wordbank-content"></div>
+</div>
+
+<!-- ====== ③ 测验页 ====== -->
+<div id="page-quiz" class="page">
+  <div class="back-link" onclick="confirmQuit()">← 退出测验</div>
+  <div class="main-card" id="quiz-container"></div>
+</div>
+
+<!-- ====== ④ 结果页 ====== -->
+<div id="page-result" class="page">
+  <div class="main-card" id="result-content"></div>
+</div>
+
+<!-- ====== ⑤ 错词本 ====== -->
+<div id="page-wrongbook" class="page">
+  <div class="back-link" onclick="location.hash='#home'">← 返回</div>
+  <div class="main-card" id="wrongbook-content"></div>
+</div>
+
+<script src="js/app.js"></script>
+<script src="js/home.js"></script>
+<script src="js/wordbank.js"></script>
+<script src="js/quiz.js"></script>
+<script src="js/result.js"></script>
+<script src="js/wrongbook.js"></script>
 </body>
 </html>
