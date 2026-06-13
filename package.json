@@ -2,11 +2,13 @@
   "name": "kids-vocab-tauri",
   "private": true,
   "scripts": {
-    "dev": "npx http-server src -p 1420 -c-1 --cors",
+    "dev": "node proxy-server.mjs",
     "build": "mkdir -p dist && cp src/index.html dist/ && cp -r src/css dist/ && cp -r src/js dist/ && echo 'built'",
     "tauri": "npx tauri"
   },
   "devDependencies": {
+    "@tauri-apps/api": "^2.11.0",
+    "@tauri-apps/cli": "^2.11.2",
     "http-server": "^14.1.1"
   }
 }

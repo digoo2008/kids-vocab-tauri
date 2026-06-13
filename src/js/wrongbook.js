@@ -11,34 +11,36 @@ function initWrongBook() {
       <span class="garland-flower"></span><span class="garland-flower"></span>
       <span class="garland-flower"></span>
     </div>
-    <div class="title-area">
-      <span class="app-icon">📕</span><span class="title">错词本</span>
-    </div>
 
     ${words.length === 0 ? `
-      <div style="font-size:48px;margin:30px 0 12px;">🎉</div>
-      <div style="font-size:24px;color:#43a047;font-weight:700;">没有错词，太棒了！</div>
-      <div style="font-size:18px;color:#a5d6a7;margin:8px 0 24px;">继续保持哦~</div>
+      <div class="wrongbook-empty">
+        <span class="wrongbook-empty-icon">🌟</span>
+        <div class="wrongbook-empty-title">没有错词，太棒了！</div>
+        <div class="wrongbook-empty-sub">每道题都答对了，继续保持哦~</div>
+      </div>
     ` : `
+      <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px;">
+        <span style="font-size:20px;font-weight:700;color:#5d4037;">待复习</span>
+        <span style="font-size:28px;font-weight:800;color:#ff7043;">${words.length}</span>
+        <span style="font-size:20px;font-weight:700;color:#5d4037;">个单词</span>
+      </div>
       <div class="wrongbook-list">
         ${words
           .sort((a, b) => wrong[b].count - wrong[a].count)
           .map(w => `
             <div class="wrongbook-item" onclick="reviewSingleWord('${w}')">
-              <span style="font-size:28px;font-weight:800;color:#e53935;">${w.toUpperCase()}</span>
-              <span style="font-size:20px;color:#8d6e63;">${wrong[w].chinese}</span>
-              <span style="font-size:16px;color:#a5d6a7;">错 ${wrong[w].count} 次</span>
+              <div>
+                <span class="wrongbook-word">${w}</span>
+                <span class="wrongbook-chinese" style="margin-left:14px;">${wrong[w].chinese}</span>
+              </div>
+              <span class="wrongbook-count">错 ${wrong[w].count} 次</span>
             </div>
           `).join('')}
       </div>
-      <div style="display:flex;justify-content:center;gap:12px;margin-top:12px;">
-        <button class="btn btn-orange" onclick="reviewAllWrong()">🔁 复习全部错词</button>
+      <div style="display:flex;justify-content:center;margin-top:18px;">
+        <button class="btn btn-orange" onclick="reviewAllWrong()">复习全部错词</button>
       </div>
     `}
-
-    <div style="margin-top:16px;">
-      <button class="btn btn-green" onclick="location.hash='#home'">🏠 返回首页</button>
-    </div>
   `;
 }
 

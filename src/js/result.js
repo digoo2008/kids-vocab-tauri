@@ -12,17 +12,13 @@ function initResult() {
       <span class="garland-flower"></span><span class="garland-flower"></span>
       <span class="garland-flower"></span>
     </div>
-    <div class="title-area">
-      <span class="app-icon">${correct === total ? '🎉' : '🐣'}</span>
-      <span class="title">测验完成！</span>
-    </div>
-    <div class="result-score">✅ ${correct} / ${total}</div>
+    <div class="result-score">${correct} / ${total}</div>
     <div style="font-size:22px;color:#a5d6a7;margin-bottom:20px;">
       得分：${App.score} | 正确率：${total>0 ? Math.round(correct/total*100) : 0}%
     </div>
 
     ${wrongList.length > 0 ? `
-      <div style="font-weight:700;color:#e53935;font-size:22px;margin-bottom:8px;">❌ 错误单词 (${wrongList.length}个)</div>
+      <div style="font-weight:700;color:#e53935;font-size:22px;margin-bottom:8px;">错误单词 (${wrongList.length}个)</div>
       <div class="wrong-list">
         ${wrongList.map(w => `
           <div class="wrong-item">
@@ -32,11 +28,11 @@ function initResult() {
           </div>
         `).join('')}
       </div>
-    ` : '<div style="font-size:24px;color:#43a047;margin:20px 0;">🎉 全部正确，太厉害了！</div>'}
+    ` : '<div style="font-size:24px;color:#43a047;margin:20px 0;">全部正确，太厉害了！</div>'}
 
-    <div style="display:flex;justify-content:center;gap:16px;margin-top:20px;">
-      ${wrongList.length > 0 ? '<button class="btn btn-orange" onclick="goReviewWrong()">🔁 复习错词</button>' : ''}
-      <button class="btn btn-green" onclick="location.hash=\'#home\'">🏠 返回首页</button>
+    <div style="display:flex;justify-content:center;gap:20px;margin-top:24px;">
+      ${wrongList.length > 0 ? '<button class="btn btn-orange" onclick="goReviewWrong()">复习错词</button>' : ''}
+      <button class="btn btn-green" onclick="location.hash=\'#home\'">返回首页</button>
     </div>
   `;
 }
